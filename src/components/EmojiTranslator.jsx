@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState } from 'react';
+import emojiDictionary from '../utils/emojiDictionary';  
 
 export default function EmojiTranslator() {
   const [inputText, setInputText] = useState('');
@@ -9,7 +10,15 @@ export default function EmojiTranslator() {
   };
 
   const handleEmojify = () => {
-    setEmojifiedText(inputText);
+    const dictionary = emojiDictionary();  // Geting the dictionary
+    const words = inputText.split(' ');  // Splitting input into words
+
+    // mapping, joining text and emojifying;
+    const emojified = words
+      .map(word => dictionary[word.toLowerCase()] || word)  
+      .join(' ');  
+
+    setEmojifiedText(emojified);  
   };
 
   return (
@@ -33,7 +42,7 @@ export default function EmojiTranslator() {
                   onClick={handleEmojify}
                   className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                 >
-                  Emojify! 
+                  Emojify!
                 </button>
                 {emojifiedText && (
                   <div className="mt-6 p-4 bg-gray-100 rounded-lg">
@@ -47,6 +56,5 @@ export default function EmojiTranslator() {
         </div>
       </div>
     </div>
-  )
+  );
 }
-
