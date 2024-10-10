@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import emojiDictionary, { getAlternativeEmojis } from '../utils/emojiDictionary';
+import VoiceRecognition from './VoiceRecognition';
 
 export default function EmojiTranslator() {
   const [inputText, setInputText] = useState('');
@@ -9,6 +10,13 @@ export default function EmojiTranslator() {
     setInputText(e.target.value);
   };
 
+  // New handler for voice transcript
+  const handleVoiceTranscript = (transcript) => {
+    setInputText(transcript);
+    // Automatically emojify the voice input
+    handleEmojify(transcript);
+  };
+  
   // converting text to emojis
   const handleEmojify = () => {
     const dictionary = emojiDictionary();
@@ -38,14 +46,19 @@ export default function EmojiTranslator() {
       <div className="bg-white rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold mb-4">Emojify Your Text!</h1>
         <div className="space-y-4">
-          {/* Text input area */}
-          <textarea
-            value={inputText}
-            onChange={handleInputChange}
-            className="w-full p-2 border rounded-lg"
-            rows={4}
-            placeholder="Enter your text here..."
-          />
+          <div className="flex gap-2">
+            {/* Text input area */}
+            <textarea
+              value={inputText}
+              onChange={handleInputChange}
+              className="flex-1 p-2 border rounded-lg"
+              rows={4}
+              placeholder="Enter your text here..."
+            />
+            <div className="flex flex-col justify-start">
+              <VoiceRecognition onTranscript={handleVoiceTranscript} />
+            </div>
+          </div>
           {/* Emojify button */}
           <button
             onClick={handleEmojify}
