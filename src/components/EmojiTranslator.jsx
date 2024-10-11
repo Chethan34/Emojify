@@ -1,40 +1,54 @@
 import { useState } from 'react';
 import emojiDictionary, { getAlternativeEmojis } from '../utils/emojiDictionary';
 import VoiceRecognition from './VoiceRecognition';
+import { analyzeSentiment } from '../utils/sentimentAnalysis';
 
 export default function EmojiTranslator() {
   const [inputText, setInputText] = useState('');
   const [emojifiedText, setEmojifiedText] = useState([]);
-  
+
   const handleInputChange = (e) => {
     setInputText(e.target.value);
   };
 
-  // New handler for voice transcript
   const handleVoiceTranscript = (transcript) => {
     setInputText(transcript);
-    // Automatically emojify the voice input
-    handleEmojify(transcript);
+    handleEmojify(transcript); // Automatically emojify the voice input
   };
-  
-  // converting text to emojis
+
+  // Handle converting text to emojis based on sentiment
   const handleEmojify = () => {
     const dictionary = emojiDictionary();
-    const words = inputText.split(' '); // Splitting individual words from given input
-    
-    // words to objects(original words, emojis and alternatives)
-    const emojified = words.map(word => ({
-      original: word,
-      current: dictionary[word.toLowerCase()] || word, // Use emoji if available, otherwise keep original word
-      alternatives: dictionary[word.toLowerCase()] 
-        ? getAlternativeEmojis(word.toLowerCase()) 
-        : null // Get alternative emojis if available
-    }));
-    
+    const sentiment = analyzeSentiment(inputText); // Get sentiment analysis result
+    const words = inputText.split(' ');
+
+    // words to objects (original words, emojis, and alternatives)
+    const emojified = words.map((word) => {
+      const emoji = dictionary[word.toLowerCase()] || word;
+      const alternatives = dictionary[word.toLowerCase()]
+        ? getAlternativeEmojis(word.toLowerCase())
+        : null;
+
+      // Adjust emoji suggestion based on sentiment
+      if (sentiment > 0 && alternatives) {
+        return {
+          original: word,
+          current: alternatives[0] || emoji, // Positive sentiment emoji
+          alternatives: alternatives,
+        };
+      } else if (sentiment < 0 && alternatives) {
+        return {
+          original: word,
+          current: alternatives[alternatives.length - 1] || emoji, // Negative sentiment emoji
+          alternatives: alternatives,
+        };
+      }
+      return { original: word, current: emoji, alternatives };
+    });
+
     setEmojifiedText(emojified);
   };
 
-  // Handler for changing individual emojis
   const handleEmojiChange = (index, newEmoji) => {
     const updatedText = [...emojifiedText];
     updatedText[index].current = newEmoji;
@@ -47,7 +61,6 @@ export default function EmojiTranslator() {
         <h1 className="text-2xl font-bold mb-4">Emojify Your Text!</h1>
         <div className="space-y-4">
           <div className="flex gap-2">
-            {/* Text input area */}
             <textarea
               value={inputText}
               onChange={handleInputChange}
@@ -59,23 +72,20 @@ export default function EmojiTranslator() {
               <VoiceRecognition onTranscript={handleVoiceTranscript} />
             </div>
           </div>
-          {/* Emojify button */}
           <button
             onClick={handleEmojify}
             className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
           >
             Emojify!
           </button>
-          {/* Results section */}
+
           {emojifiedText.length > 0 && (
             <div className="mt-6 p-4 bg-gray-100 rounded-lg">
               <h3 className="text-xl font-bold mb-2">Emojified Result:</h3>
               <div className="flex flex-wrap gap-2">
-                {/* Map through emojified words and render either dropdown or plain text */}
                 {emojifiedText.map((item, index) => (
                   <div key={index} className="relative inline-block">
                     {item.alternatives ? (
-                      // Dropdown for words with emoji alternatives
                       <select
                         value={item.current}
                         onChange={(e) => handleEmojiChange(index, e.target.value)}
@@ -89,7 +99,6 @@ export default function EmojiTranslator() {
                         ))}
                       </select>
                     ) : (
-                      // Plain text for words without emoji alternatives
                       <span className="text-2xl">{item.current}</span>
                     )}
                   </div>
