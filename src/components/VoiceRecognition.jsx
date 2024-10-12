@@ -6,22 +6,15 @@ export default function VoiceRecognition({ onTranscript }) {
   const [recognition, setRecognition] = useState(null);
 
   useEffect(() => {
-    // Checks if browser supports speech recognition
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
+
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.continuous = false;
       recognition.interimResults = false;
 
-      recognition.onstart = () => {
-        setIsListening(true);
-      };
-
-      recognition.onend = () => {
-        setIsListening(false);
-      };
-
+      recognition.onstart = () => setIsListening(true);
+      recognition.onend = () => setIsListening(false);
       recognition.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         onTranscript(transcript);
@@ -42,15 +35,16 @@ export default function VoiceRecognition({ onTranscript }) {
   return (
     <button
       onClick={startListening}
-      className="py-2 px-4 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center"
+      className={`py-2 px-4 ${
+        isListening ? 'bg-red-500 hover:bg-red-600' : 'bg-green-500 hover:bg-green-600'
+      } text-white rounded-lg transition-colors flex items-center justify-center transform hover:scale-105`}
       disabled={isListening}
     >
-      {isListening ? 'Listening...' : 'Speak 🎤'}
+      {isListening ? 'Listening... 🎤' : 'Speak 🎤'}
     </button>
   );
 }
 
-// Add prop validation
 VoiceRecognition.propTypes = {
   onTranscript: PropTypes.func.isRequired,
 };
