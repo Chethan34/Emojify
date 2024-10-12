@@ -20,5 +20,12 @@ I have recorded a video walkthrough of the code. You can watch it here: [Watch t
 To install this project, follow these steps:
 
 1. **Clone the repository:**
-   ```bash
    git clone https://github.com/Chethan34/Emojify.git
+
+2. **Install dependensies:**
+   npm install 
+   or 
+   yarn install
+
+3. **Run the server:**
+   npm run dev
