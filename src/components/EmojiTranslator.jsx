@@ -1,13 +1,14 @@
 import { useState, useRef } from 'react';
 import Sentiment from 'sentiment';
 import { emojifyText, getAlternativeEmojis } from "../utils/emojiUtils";
+import VoiceRecognition from './VoiceRecognition';
 
 const sentiment = new Sentiment();
 
 export default function EmojiTranslator() {
   const [inputText, setInputText] = useState('');
   const [emojifiedText, setEmojifiedText] = useState([]);
-  const [hoveredEmojiIndex, setHoveredEmojiIndex] = useState(null); 
+  const [hoveredEmojiIndex, setHoveredEmojiIndex] = useState(null);
   const hideTimeout = useRef(null);
 
   const handleInputChange = (e) => {
@@ -39,21 +40,27 @@ export default function EmojiTranslator() {
     );
   };
 
-  return (
-    <div className="max-w-md mx-auto bg-white rounded-xl shadow-md overflow-hidden md:max-w-2xl m-4 p-6">
-      <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">Emojify Your Text! 🎉</h1>
+  const handleTranscript = (transcript) => {
+    setInputText(transcript);
+  };
 
-      <div className="space-y-6">
-        <textarea
-          value={inputText}
-          onChange={handleInputChange}
-          className="w-full p-3 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-lg"
-          rows={4}
-          placeholder="Enter your text here... 📝"
-        />
+  return (
+    <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-md overflow-hidden m-6 p-10 border border-blue-500">
+      <h1 className="text-4xl font-bold mb-6 text-center text-blue-600">Emojify Your Text! 🎉</h1>
+
+      <div className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <textarea
+            value={inputText}
+            onChange={handleInputChange}
+            className="flex-grow p-4 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-lg resize-none h-48"
+            placeholder="Enter your text here... 📝"
+          />
+          <VoiceRecognition onTranscript={handleTranscript} />
+        </div>
         <button
           onClick={handleEmojify}
-          className="w-full py-3 px-6 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all text-lg font-semibold"
+          className="w-full py-4 px-6 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all text-lg font-semibold"
         >
           Emojify! ✨
         </button>

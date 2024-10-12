@@ -9,26 +9,26 @@ export default function VoiceRecognition({ onTranscript }) {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (SpeechRecognition) {
-      const recognition = new SpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = false;
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
 
-      recognition.onstart = () => setIsListening(true);
-      recognition.onend = () => setIsListening(false);
-      recognition.onresult = (event) => {
+      recognitionInstance.onstart = () => setIsListening(true);
+      recognitionInstance.onend = () => setIsListening(false);
+      recognitionInstance.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
         onTranscript(transcript);
       };
 
-      setRecognition(recognition);
+      setRecognition(recognitionInstance);
+    } else {
+      alert('Speech recognition is not supported in your browser.');
     }
   }, [onTranscript]);
 
   const startListening = () => {
     if (recognition) {
       recognition.start();
-    } else {
-      alert('Speech recognition is not supported in your browser.');
     }
   };
 
