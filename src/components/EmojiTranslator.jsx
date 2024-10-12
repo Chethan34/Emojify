@@ -7,8 +7,8 @@ const sentiment = new Sentiment();
 export default function EmojiTranslator() {
   const [inputText, setInputText] = useState('');
   const [emojifiedText, setEmojifiedText] = useState([]);
-  const [hoveredEmojiIndex, setHoveredEmojiIndex] = useState(null); // Track hovered emoji index
-  const hideTimeout = useRef(null); // Ref to store timeout for delayed hide
+  const [hoveredEmojiIndex, setHoveredEmojiIndex] = useState(null); 
+  const hideTimeout = useRef(null);
 
   const handleInputChange = (e) => {
     setInputText(e.target.value);
@@ -21,20 +21,17 @@ export default function EmojiTranslator() {
   };
 
   const handleHover = (index) => {
-    // Clear any pending hide timeouts to prevent premature hiding
     clearTimeout(hideTimeout.current);
-    setHoveredEmojiIndex(index); // Set the hovered emoji index
+    setHoveredEmojiIndex(index);
   };
 
   const handleLeaveHover = () => {
-    // Add a small delay before hiding the emoji options
     hideTimeout.current = setTimeout(() => {
-      setHoveredEmojiIndex(null); // Reset hover state
-    }, 300); // Adjust the delay as needed (300ms here)
+      setHoveredEmojiIndex(null);
+    }, 300);
   };
 
   const handleEmojiSelect = (emoji, index) => {
-    // Replace the emoji with the selected one
     setEmojifiedText((prev) =>
       prev.map((item, idx) =>
         idx === index ? { ...item, emoji } : item
@@ -74,15 +71,14 @@ export default function EmojiTranslator() {
                 >
                   <span className="transition-transform transform">{item.emoji}</span>
 
-                  {/* Alternative emojis shown on hover with delayed hiding */}
                   {hoveredEmojiIndex === index && (
                     <div className="absolute z-10 mt-1 p-2 bg-white rounded-lg shadow-lg border border-gray-300 flex space-x-2">
                       {getAlternativeEmojis(item.word || '').map((emoji, altIndex) => (
                         <span
                           key={altIndex}
                           className="cursor-pointer text-2xl hover:bg-blue-200 rounded transition-all transform hover:scale-110"
-                          onClick={() => handleEmojiSelect(emoji, index)} // Replace emoji on click
-                          onMouseEnter={() => clearTimeout(hideTimeout.current)} // Prevent hiding when hovering over options
+                          onClick={() => handleEmojiSelect(emoji, index)}
+                          onMouseEnter={() => clearTimeout(hideTimeout.current)}
                         >
                           {emoji}
                         </span>

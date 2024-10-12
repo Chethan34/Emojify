@@ -1,71 +1,46 @@
-const emojiMap = {
-  // Emotions
-  'love': ['❤️', '😍', '🥰', '💖', '💘'],
-  'happy': ['😊', '😄', '😁', '😎', '😃'],
-  'sad': ['😢', '😭', '😞', '😔', '🙁'],
-  'angry': ['😠', '😡', '🤬', '👿', '😤'],
-  'surprised': ['😲', '😮', '😯', '🤯', '😳'],
-  'fear': ['😱', '😨', '😰', '😖', '😬'],
-  
-  // Animals
-  'dog': ['🐶', '🐕', '🦮', '🐕‍🦺', '🐩'],
-  'cat': ['🐱', '🐈', '😺', '🐈‍⬛', '😸'],
-  'bird': ['🐦', '🦜', '🦢', '🐧', '🦉'],
-  'fish': ['🐟', '🐠', '🐡', '🐬', '🐳'],
-  
-  // Food and Drinks
-  'food': ['🍔', '🍕', '🍣', '🍟', '🥗', '🌮'],
-  'drink': ['🍺', '🍷', '🥤', '☕', '🍵', '🍹'],
-  'fruit': ['🍎', '🍇', '🍌', '🍉', '🍍'],
-  'dessert': ['🍰', '🍩', '🍫', '🍪', '🍨'],
-  
-  // Activities and Fun
-  'fun': ['🎉', '🎊', '🥳', '🎈', '🤹'],
-  'music': ['🎵', '🎶', '🎸', '🎤', '🎧'],
-  'sport': ['⚽', '🏀', '🎾', '🏈', '🏓'],
-  'dance': ['💃', '🕺', '👯', '🎽', '🩰'],
+import emojiData from '../data/all-emoji.json';
 
-  // Travel and Places
-  'travel': ['✈️', '🚗', '🚢', '🚂', '🚲'],
-  'nature': ['🌳', '🌺', '🌊', '⛰️', '🌵'],
-  'weather': ['☀️', '🌧️', '❄️', '🌈', '🌪️'],
-  'city': ['🏙️', '🌆', '🏛️', '🏨', '🏗️'],
+// Create a mapping of keywords to emojis from the JSON dataset
+const emojiMap = {};
 
-  // Technology and Objects
-  'tech': ['💻', '📱', '🤖', '🖥️', '⌨️'],
-  'office': ['📋', '📊', '📈', '🗂️', '📎'],
-  'money': ['💵', '💰', '💳', '🪙', '🏦'],
-  'games': ['🎮', '🕹️', '♟️', '🎲', '🃏'],
+// Iterate through the emoji categories in the JSON
+for (const category in emojiData) {
+  emojiData[category].forEach(entry => {
+    const { emoji, keywords } = entry; // Only destructure the necessary variables
 
-  // People and Gestures
-  'greeting': ['👋', '🙌', '🙏', '🤝', '🤗'],
-  'thumbs': ['👍', '👎', '👏', '🤲', '✌️'],
-  'family': ['👨‍👩‍👧', '👩‍👦', '👪', '🧑‍🤝‍🧑', '👩‍❤️‍👨'],
-  
-  // Symbols
-  'symbols': ['⚠️', '❌', '✅', '🔔', '❓'],
-  'hearts': ['💓', '💗', '💙', '💚', '💛']
-};
+    // Map keywords to the respective emoji
+    keywords.forEach(keyword => {
+      const lowerKeyword = keyword.toLowerCase();
+      if (!emojiMap[lowerKeyword]) {
+        emojiMap[lowerKeyword] = [];
+      }
+      emojiMap[lowerKeyword].push(emoji);
+    });
+  });
+}
 
+export function getEmojisForKeyword(keyword) {
+  return emojiMap[keyword.toLowerCase()] || []; // Return emojis for the keyword
+}
 
-function getEmojiForSentiment(word, sentimentScore) {
-  const emojis = emojiMap[word.toLowerCase()] || [];
+export function getEmojiForSentiment(word, sentimentScore) {
+  const emojis = getEmojisForKeyword(word);
   if (emojis.length === 0) return '';  // Return empty if no emoji found
 
-  // Select emoji based on sentiment score
+  // Logic for selecting emoji based on sentiment score
   if (sentimentScore > 2) return emojis[0]; // Positive sentiment
   if (sentimentScore < -2) return emojis[emojis.length - 1]; // Negative sentiment
   return emojis[Math.floor(emojis.length / 2)]; // Neutral sentiment
 }
 
 export function emojifyText(text, sentimentScore) {
-  const words = text.split(/\s+/);  // Split text into individual words
+  const words = text.split(/\s+/);
   return words.map(word => {
     const emoji = getEmojiForSentiment(word, sentimentScore);
-    return { word, emoji: emoji || word }; // Return an object with the word and emoji
+    return { word, emoji: emoji || word };
   });
 }
 
 export function getAlternativeEmojis(word) {
-  return emojiMap[word.toLowerCase()] || [];
+  return getEmojisForKeyword(word);
 }
